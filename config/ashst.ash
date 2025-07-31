@@ -1,0 +1,54 @@
+#! bin/ash
+
+@entry startup
+@version 0.1.0
+
+include sys.mem;
+include sys.fs;
+include sys.core;
+
+fnc void startup() {
+    init var stmsg = "Starting Ash...";
+    
+    stdout $stmsg;
+
+    init int boot_phase = 0;
+    init boolean secure_mode = true;
+    init var session_id = null;
+    uninit char user_input;
+
+    stdout "Checking memory subsystems...";
+    vmem init;
+    heap allocate 1024;
+    stack setup 256;
+
+    stdout "Memory Systems ready!";
+
+    stdout "Loading user config...";
+
+    init var fd = openf("/cfg/user.conf");
+    init str data = readf(fd, session_id);
+    uninit void ptr mem = allocmem(sizef(fd));
+
+    closef(fd);
+
+    writef(mem, data);
+    set data => null;
+    set fd => null;
+
+    stdout "Loaded User Config...";
+
+    stdout "Performing secure mode check...";
+    if (secure_mode) {
+        out "ASH Booting in secure mode";
+    } else {
+        errout "OS Is not in Secure mode CANNOT BOOT ash! Try ash-real for this";
+    }
+
+    run core.init;
+    exec login.process;
+
+    out "ASH Environment is ready!";
+    run clear;
+    ret void;
+}
