@@ -4,6 +4,11 @@
 
 char* TokenTypeNames[] = {
   "TOK_NUMBER",
+  "TOK_FLOATL",
+  "TOK_DOUBLEL",
+  "TOK_SQUOTE",
+  "TOK_DQUOTE",
+  "TOK_BOOLEAN",
   "TOK_FLOAT",
   "TOK_DOUBLE",
   "TOK_INVALID",
@@ -128,6 +133,8 @@ TokenType getType(const char* wrd) {
   if (strcmp(wrd, "for") == 0) return TOK_FOR;
   if (strcmp(wrd, "while") == 0) return TOK_WHILE;
 
+  if (strcmp(wrd, "true") == 0 || strcmp(wrd, "false") == 0) return TOK_BOOLEAN;
+  
   if (strcmp(wrd, "==") == 0) return TOK_EQUALS;
   if (strcmp(wrd, ">=") == 0) return TOK_GTE;
   if (strcmp(wrd, "<=") == 0) return TOK_LTE;
@@ -160,6 +167,8 @@ TokenType getTypeChar(const char c) {
   if (c == '>') return TOK_GT;
   if (c == '^') return TOK_XOR;
   if (c == '!') return TOK_EXPO;
+  if (c == '\'') return TOK_SQUOTE;
+  if (c == '"') return TOK_DQUOTE;
   
   return TOK_INVALID;
 }
