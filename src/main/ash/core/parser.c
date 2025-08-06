@@ -74,7 +74,7 @@ ASTNode* parse_primary(Parser* parser) {
 ASTNode* parse_unary(Parser* parser) {
   TokenType type = peek(parser).type;
 
-  if (type == TOK_ADD || TOK_SUB) {
+  if (type == TOK_ADD || type == TOK_SUB || type == TOK_NOT) {
     Token op = advance(parser); // consume and get
     ASTNode* right = parse_unary(parser);
 
@@ -87,29 +87,27 @@ ASTNode* parse_unary(Parser* parser) {
   return parse_primary(parser);
 }
 
-ASTNode* parse_binary(Parser* parser) {
+ASTNode* parse_binary(Parser* parser, int precedence) {
   ASTNode* left = parse_unary(parser);
   while (1) {
     int currPrec = get_precendence(current(parser).type);
-    
+    if (currPrec < precedence) break;
 
-ASTNode* parse_binary(Parser* parser) {
-  ASTNode* left = parse_primary(parser);
-  while (peek(parser).type == TOK_MUL || peek(parser).type == TOK_DIV) {
-    Token op = advance(parser);
-    ASTNode* right = parse_primary(parser);
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = AST_BINARY;
-    node->binary.left = left;
-    node->binary.op = op;
-    node->binary.right = right;
-    left = node;
+    Token op = advance(parser); // consume and get
+    ASTNode* right = parseBinary(parser, currPrec + 1);
+    ASTNode* lft = malloc(sizeof(ASTNode));
+    lft->type = AST_BINARY;
+    lft->binary->left = left;
+    lft->binary->right = right;
+
+    free(left);
+    left = lft;
   }
   return left;
 }
-
+    
 ASTNode* parse_expression(Parser* parser) {
-  return parse_binary(parser);
+  return parse_binary(parser, 0);
 }
 
 ASTNode* parse_assignment(Parser* parser) {
@@ -186,6 +184,31 @@ ASTNode* parse_return(Parser* parser) {
   node->type = AST_RETURN;
   node->return_stmt->value = value;
   return node;
+}
+
+ASTNode* parse_block(Parser* parser) {
+  ASTNode* node = malloc(sizeof(ASTNode));
+  node->type = AST_BLOCK;
+  return node;
+}
+
+ASTNode* parse_if(Parser* parser) {
+  ASTNode* node = malloc(sizeof(ASTNode));
+  node->type = AST_IF;
+
+  node->if_stmt->condition = parse_expression(parser);
+  node->if_stmt->thenBranch = parse_block(parser);
+  node->if_stmt->elseBranch = parse_block(parser);
+  return node;
+}
+
+ASTNode* parse_statement(Parser* parser) {
+  if (match(parser, TOK_IF)) return parse_if(parser);
+  if (match(parser, TOK_WHILE)) return parse_while(parser);
+  if (match(parser, TOK_RETURN)) return parse_return(parser);
+  if (isType(current(parser))) return parse_var_decl(parser);
+  if (match(parser, TOK_LBRACKET)) return parse_block(parser);
+  return parse_expression(parser);
 }
 
 ASTNode** parse(Parser* parser, size_t* outCount) {

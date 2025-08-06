@@ -4,6 +4,7 @@
 #include <ash.h>
 #include <ashtypes.h>
 #include <lexer.h>
+#include <stdbool.h>
 
 typedef enum {
   AST_EXPRESSION,
@@ -130,11 +131,12 @@ typedef struct {
 
 Token peek(Parser* parser);
 Token advance(Parser* parser);
-int match(Parser* parser, TokenType type);
+bool match(Parser* parser, TokenType type);
+
 
 ASTNode* parse_primary(Parser* parser);
 ASTNode* parse_unary(Parser* parser);
-ASTNode* parse_binary(Parser* parser);
+ASTNode* parse_binary(Parser* parser, int precedence);
 ASTNode* parse_expression(Parser* parser);
 ASTNode* parse_assignment(Parser* parser);
 ASTNode* parse_var_decl(Parser* parser);

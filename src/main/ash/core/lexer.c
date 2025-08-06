@@ -84,7 +84,14 @@ char* TokenTypeNames[] = {
   "TOK_WHILE",
   "TOK_BREAK",
   "TOK_CONTINUE",
-  "TOK_RETURN"
+  "TOK_RETURN",
+  "TOK_NOT",
+  "TOK_AND",
+  "TOK_NOR",
+  "TOK_XNOR",
+  "TOK_OR",
+  "TOK_NAND",
+  "TOK_IN",
 };
 
 char* token_type_to_str(TokenType type) {
